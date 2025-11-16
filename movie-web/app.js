@@ -46,13 +46,68 @@ function browseMovies() {
     const content = document.getElementById('content');
     content.innerHTML = "<h3>All Movies</h3>";
 
+    if (movies.length === 0) {
+        content.innerHTML += "<p>No movies loaded.</p>";
+        return;
+    }
+
     let html = "<ul>";
     for (const m of movies) {
-        html += `<li>[${m.id}] ${m.title} (${m.year}) - ${m.genre} - ${m.rating}</li>`;
+        html += `
+          <li>
+            [${m.id}] ${m.title} (${m.year}) - ${m.genre} - ${m.rating}
+            <button class="add-watchlist" data-id="${m.id}">Add to watchlist</button>
+            <button class="mark-watched" data-id="${m.id}">Mark watched</button>
+          </li>
+        `;
     }
     html += "</ul>";
 
-    content.innerHTML += html;
+    content.innerHTML = content.innerHTML + html;
+
+    document.querySelectorAll('.add-watchlist').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            addToWatchlist(id);
+        });
+    });
+
+    document.querySelectorAll('.mark-watched').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            markAsWatched(id);
+        });
+    });
+}
+
+function addToWatchlist(id) {
+    if (!currentUser.watchlist.includes(id)) {
+        currentUser.watchlist.push(id);
+        alert(`Added ${id} to watchlist.`);
+    } else {
+        alert(`Movie ${id} is already in your watchlist.`);
+    }
+}
+
+function removeFromWatchlist(id) {
+    const index = currentUser.watchlist.indexOf(id);
+    if (index !== -1) {
+        currentUser.watchlist.splice(index, 1);
+        alert(`Removed ${id} from watchlist.`);
+        viewWatchlist();
+    }
+}
+
+function markAsWatched(id) {
+    if (!currentUser.history.includes(id)) {
+        currentUser.history.push(id);
+    }
+
+    const index = currentUser.watchlist.indexOf(id);
+    if (index !== -1) {
+        currentUser.watchlist.splice(index, 1);
+    }
+    alert(`Marked ${id} as watched.`);
 }
 
 function viewWatchlist() {
@@ -68,14 +123,35 @@ function viewWatchlist() {
     for (const id of currentUser.watchlist) {
         const m = findMovieById(id);
         if (m) {
-            html += `<li>[${m.id}] ${m.title} (${m.year}) - ${m.genre} - ${m.rating}</li>`;
+            html += `
+              <li>
+                [${m.id}] ${m.title} (${m.year}) - ${m.genre} - ${m.rating}
+                <button class="remove-watchlist" data-id="${m.id}">Remove</button>
+                <button class="mark-watched" data-id="${m.id}">Mark watched</button>
+              </li>
+            `;
         } else {
-            html += `<li>(Unknown movie ID: ${id})</li>`
+            html += `<li>(Unknown movie ID: ${id})</li>`;
         }
     }
     html += "</ul>";
 
-    content.innerHTML += html;
+    content.innerHTML = content.innerHTML + html;
+
+    document.querySelectorAll('.remove-watchlist').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            removeFromWatchlist(id);
+        });
+    });
+
+    document.querySelectorAll('.mark-watched').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            markAsWatched(id);
+            viewWatchlist(); // refresh the list
+        });
+    });
 }
 
 function viewHistory() {
@@ -98,7 +174,7 @@ function viewHistory() {
     }
     html += "</ul>";
 
-    content.innerHTML += html;
+    content.innerHTML = content.innerHTML + html;
 }
 
 function showRecommendations() {
@@ -110,10 +186,8 @@ function showRecommendations() {
         return;
     }
 
-    let nStr = prompt("How many recommendations would you like?", "5");
-    if (nStr === null) {
-        return; //cancelled
-    }
+    const nStr = prompt("How many recommendations would you like?", "5");
+    if (nStr === null) return;
     const n = parseInt(nStr, 10);
     if (isNaN(n) || n <= 0) {
         content.innerHTML += "<p>Please enter a valid positive number.</p>";
@@ -121,8 +195,6 @@ function showRecommendations() {
     }
 
     const watchedSet = new Set(currentUser.history);
-    const watchlistSet = new Set(currentUser.watchlist);
-
     const candidates = movies.filter(m => !watchedSet.has(m.id));
 
     candidates.sort((a, b) => b.rating - a.rating);
@@ -130,7 +202,7 @@ function showRecommendations() {
     const recs = candidates.slice(0, n);
 
     if (recs.length === 0) {
-        content.innerHTML += "<p>No recommendations available. Try adding more movies!</p>";
+        content.innerHTML += "<p>No recommendations available.</p>";
         return;
     }
 
@@ -140,7 +212,7 @@ function showRecommendations() {
     }
     html += "</ul>";
 
-    content.innerHTML += html;
+    content.innerHTML = content.innerHTML + html;
 }
 
 function logout() {
