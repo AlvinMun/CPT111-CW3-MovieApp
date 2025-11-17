@@ -11,6 +11,23 @@ async function loadMovies() {
     movies = await res.json();
 }
 
+let users = [];
+async function loadUsers() {
+    const res = await fetch('data/users.json');
+    users = await res.json();
+}
+
+function saveUserData() {
+    localStorage.setItem('userData', JSON.stringify(currentUser));
+}
+
+function loadUserData() {
+    const data = localStorage.getItem('userData');
+    if (data) {
+        currentUser = JSON.parse(data);
+    }
+}
+
 function findMovieById(id) {
     return movies.find(m => m.id === id);
 }
