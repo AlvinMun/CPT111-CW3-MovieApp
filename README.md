@@ -9,14 +9,14 @@ A working **console version** is included, and the GUI version is built on top o
 ---
 
 ##  Features
-✔ User login (CSV authentication)  
-✔ Browse all movies  
-✔ Add / remove movies in Watchlist  
-✔ Mark movies as watched (History)  
-✔ Recommendation Engine (top-rated unwatched movies)  
-✔ Change password feature  
-✔ GUI with buttons, list view, and dialogs  
-✔ Data stored in CSV and loaded at startup  
+- User login (CSV authentication)  
+- Browse all movies  
+- Add / remove movies in Watchlist  
+- Mark movies as watched (History)  
+- Recommendation Engine (top-rated unwatched movies)  
+- Change password feature  
+- GUI with buttons, list view, and dialogs  
+- Data stored in CSV and loaded at startup  
 
  Bonus prototype (not graded):  
 A prototype **HTML + CSS + JavaScript** web version is included in *movie-web/*
