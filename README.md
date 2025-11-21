@@ -24,6 +24,7 @@ A prototype **HTML + CSS + JavaScript** web version is included in *movie-web/*
 ---
 
 ## 🧱 Project Structure
+```
 CPT111-CW3-MovieApp/
 │
 ├─ src/
@@ -51,6 +52,7 @@ CPT111-CW3-MovieApp/
 ├─ index.html
 ├─ style.css
 └─ app.js
+```
 
 ---
 
