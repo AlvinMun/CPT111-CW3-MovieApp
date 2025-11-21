@@ -52,9 +52,6 @@ CPT111-CW3-MovieApp/
 ├─ style.css
 └─ app.js
 
-yaml
-Copy code
-
 ---
 
 ## ⚙️ Technologies Used
@@ -78,14 +75,10 @@ Copy code
 Extract JavaFX to a location like:
 C:\javafx-sdk-21\
 
-bash
-Copy code
-
 ### 🔧 Compile
 From project root:
 ```bash
 javac --module-path "C:\javafx-sdk-21\lib" --add-modules javafx.controls,javafx.fxml -d out src/model/*.java src/data/*.java src/service/*.java src/ui/MovieAppFX.java
 ▶ Run Application
-bash
-Copy code
+
 java --module-path "C:\javafx-sdk-21\lib" --add-modules javafx.controls,javafx.fxml -cp out ui.MovieAppFX
