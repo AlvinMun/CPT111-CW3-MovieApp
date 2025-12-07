@@ -220,8 +220,8 @@ public class Main {
     private static void getRecommendations(Scanner sc, User user, MovieDatabase movieDb,
                                         RecommendationEngine recEngine) {
         System.out.println("=== Recommendations ===");
-        System.out.println("1. Top-N by rating");
-        System.out.println("2. Top-N by favourite genre");
+        System.out.println("1. By rating");
+        System.out.println("2. By favourite genre");
         System.out.print("Choose strategy: ");
         String strategyStr = sc.nextLine().trim();
 
@@ -235,12 +235,18 @@ public class Main {
             return;
         }
 
+        int max = user.getMaxRecommendations();
+        if (n > max) {
+            System.out.println("As a " + user.getUserType()
+                    + " user, you can request at most " + max + " recommendations at a time.");
+            n = max;
+        }
+
         List<Movie> recs;
 
         if (strategyStr.equals("2")) {
             recs = recEngine.getTopNByFavouriteGenre(user, movieDb, n);
         } else {
-            // default case or "1"
             recs = recEngine.getTopNRecommendations(user, movieDb, n);
         }
 

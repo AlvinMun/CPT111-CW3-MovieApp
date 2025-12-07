@@ -7,13 +7,21 @@ public class User {
     private String password;
     private ArrayList<String> watchlist;
     private ArrayList<String> history;
+    private String userType;
 
     public User(String username, String password, ArrayList<String> watchlist, ArrayList<String> history) {
+        this(username, password, watchlist, history, "BASIC");  // default type
+    }
+
+    public User(String username, String password, ArrayList<String> watchlist,
+            ArrayList<String> history, String userType) {
         this.username = username;
         this.password = password;
         this.watchlist = watchlist;
-        this.history = history;                
+        this.history = history;
+        this.userType = userType;
     }
+
 
     public String getUsername() {
         return username;
@@ -29,6 +37,22 @@ public class User {
 
     public ArrayList<String> getHistory() {
         return history;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public int getMaxRecommendations() {
+        if ("PREMIUM".equalsIgnoreCase(userType)) {
+            return 100;   // premium limit
+        } else {
+            return 20;    // basic limit
+        }
     }
 
     public void addToWatchlist(String movieId) {
@@ -55,7 +79,6 @@ public class User {
         return String.join(";", history);
     }
 
-    //for advanced feature like "change password"
     public void setPassword(String newPassword) {
         this.password = newPassword;
     }

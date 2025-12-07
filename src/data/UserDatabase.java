@@ -1,5 +1,7 @@
 package data;
 
+import model.BasicUser;
+import model.PremiumUser;
 import model.User;
 
 import java.io.BufferedReader;
@@ -7,7 +9,6 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,16 +30,28 @@ public class UserDatabase {
                 String[] parts = line.split(",", -1);
 
                 if (parts.length < 4) continue;
-                
+
                 String username = parts[0].trim();
                 String password = parts[1].trim();
                 String watchlistStr = parts[2].trim();
                 String historyStr = parts[3].trim();
 
+                String type = "BASIC";
+                if (parts.length >= 5) {
+                    type = parts[4].trim().toUpperCase();
+                }
+
                 ArrayList<String> watchlist = parseList(watchlistStr);
                 ArrayList<String> history = parseHistory(historyStr);
 
-                User user = new User(username, password, watchlist, history);
+                User user;
+
+                if ("PREMIUM".equals(type)) {
+                    user = new PremiumUser(username, password, watchlist, history);
+                } else {
+                    user = new BasicUser(username, password, watchlist, history);
+                }
+
                 users.put(username, user);
             }
         } catch (IOException e) {
@@ -92,34 +105,37 @@ public class UserDatabase {
 
     public void saveUsers() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
-            bw.write("username, password, watchlist, history");
+        bw.write("username,password,watchlist,history,userType");
+        bw.newLine();
+
+        for (User u : users.values()) {
+            String watchlistStr = u.serializeWatchlist();
+            String historyStr = u.serializeHistory();
+            String type = u.getUserType();
+
+            String line = u.getUsername() + "," + u.getPassword() + "," +
+                        watchlistStr + "," + historyStr + "," + type;
+
+            bw.write(line);
             bw.newLine();
+        }
 
-            for (User u : users.values()) {
-                String watchlistStr = u.serializeWatchlist();
-                String historyStr = u.serializeHistory();
-
-                String line = u.getUsername() + "," + u.getPassword() + "," + watchlistStr + "," + historyStr;
-
-                bw.write(line);
-                bw.newLine();
-            }
         } catch (IOException e) {
             System.out.println("Error saving users.csv: " + e.getMessage());
         }
     }
-
-    // (Advanced feature idea: createUser(), changePassword(), etc.)
+    
     public User createUser(String username, String password) {
-        if (users.containsKey(username)) {
-            return null; // username already taken
-        }
+        if (users.containsKey(username)) return null;
 
-        User newUser = new User(username, password, new ArrayList<>(), new ArrayList<>());
-        users.put(username, newUser);
+        User u = new BasicUser(username, password,
+                            new ArrayList<String>(), new ArrayList<String>());
+
+        users.put(username, u);
         saveUsers();
-        return newUser;
+        return u;
     }
+
 
     public HashMap<String, User> getUsers() {
         return users;

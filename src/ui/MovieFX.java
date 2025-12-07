@@ -179,7 +179,13 @@ public class MovieFX extends Application {
         Button recBtn = new Button("Get Recommendations");
         Button changePassBtn = new Button("Change Password");
         Button logoutBtn = new Button("Logout");
+        Button basicBtn = new Button("Basic");
+        Button premiumBtn = new Button("Premium");
 
+        basicBtn.getStyleClass().add("tier-button");
+        premiumBtn.getStyleClass().add("tier-button");
+
+        
         browseBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
@@ -225,7 +231,48 @@ public class MovieFX extends Application {
             }
         });
 
-        HBox topButtons = new HBox(10, browseBtn, watchlistBtn, historyBtn, recBtn, changePassBtn, logoutBtn);
+        basicBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (currentUser == null) {
+                    statusLabel.setText("Please log in first.");
+                    return;
+                }
+                currentUser.setUserType("BASIC");
+                userDb.saveUsers();
+
+                if (!basicBtn.getStyleClass().contains("selected-tier")) {
+                    basicBtn.getStyleClass().add("selected-tier");
+                }
+                premiumBtn.getStyleClass().remove("selected-tier");
+
+                statusLabel.setText("Switched to BASIC user (max "
+                        + currentUser.getMaxRecommendations() + " recommendations).");
+            }
+        });
+
+        premiumBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (currentUser == null) {
+                    statusLabel.setText("Please log in first.");
+                    return;
+                }
+                currentUser.setUserType("PREMIUM");
+                userDb.saveUsers();
+
+                if (!premiumBtn.getStyleClass().contains("selected-tier")) {
+                    premiumBtn.getStyleClass().add("selected-tier");
+                }
+                basicBtn.getStyleClass().remove("selected-tier");
+
+                statusLabel.setText("Switched to PREMIUM user (max "
+                        + currentUser.getMaxRecommendations() + " recommendations).");
+            }
+        });
+
+        HBox topRow = new HBox(10, browseBtn, watchlistBtn, historyBtn, recBtn, changePassBtn, logoutBtn);
+        HBox secondRow = new HBox(10, basicBtn, premiumBtn);
         
         Label idLabel = new Label("Movie ID:");
         TextField movieIdField = new TextField();
@@ -310,7 +357,7 @@ public class MovieFX extends Application {
                 }
 
                 currentUser.addToHistory(id);
-                currentUser.removeFromWatchlist(id); // same as console logic
+                currentUser.removeFromWatchlist(id);
                 userDb.saveUsers();
                 statusLabel.setText("Marked as watched: " + movie.getTitle());
             }
@@ -320,9 +367,13 @@ public class MovieFX extends Application {
 
         contentList = new ListView<String>();
 
-        VBox root = new VBox(10, welcomeLabel, topButtons, editBox, contentList, statusLabel);
+        VBox root = new VBox(10, welcomeLabel, topRow, secondRow, editBox, contentList, statusLabel);
         root.setPadding(new Insets(20));
         mainScene = new Scene(root, 900, 600);
+
+        String css = getClass().getResource("style.css").toExternalForm();
+        mainScene.getStylesheets().add(css);
+
     }
 
     private void showAllMovies() {
@@ -417,6 +468,13 @@ public class MovieFX extends Application {
         if (n <= 0) {
             statusLabel.setText("N must be positive.");
             return;
+        }
+
+        int max = currentUser.getMaxRecommendations();
+        if (n > max) {
+            n = max;
+            statusLabel.setText("As a " + currentUser.getUserType()
+                    + " user, you can request at most " + max + " recommendations. Showing " + max + ".");
         }
 
         List<Movie> recs;
