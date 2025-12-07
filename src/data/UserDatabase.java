@@ -7,7 +7,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -110,17 +110,22 @@ public class UserDatabase {
     }
 
     // (Advanced feature idea: createUser(), changePassword(), etc.)
-    public boolean createUser(String username, String password) {
-        if (users.containsKey(username)) return false;
+    public User createUser(String username, String password) {
+        if (users.containsKey(username)) {
+            return null; // username already taken
+        }
 
-        User u = new User(username, password, new ArrayList<>(), new ArrayList<>());
-
-        users.put(username, u);
+        User newUser = new User(username, password, new ArrayList<>(), new ArrayList<>());
+        users.put(username, newUser);
         saveUsers();
-        return true;
+        return newUser;
     }
 
     public HashMap<String, User> getUsers() {
         return users;
+    }
+
+    public boolean usernameExists(String username) {
+        return users.containsKey(username);
     }
 }

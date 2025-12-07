@@ -24,7 +24,8 @@ public class Main {
             if (currentUser == null) {
                 System.out.println("\n=== Movie Recommendation & Tracker ===");
                 System.out.println("1. Login");
-                System.out.println("2. Exit");
+                System.out.println("2. Register");
+                System.out.println("3. Exit");
                 System.out.print("Choose an option: ");
 
                 int choice = readInt(sc);
@@ -34,6 +35,9 @@ public class Main {
                         currentUser = handleLogin(sc, userDb);
                         break;
                     case 2:
+                        handleRegister(sc, userDb);
+                        break;
+                    case 3:
                         running = false;
                         System.out.println("Goodbye!");
                         break;
@@ -214,19 +218,41 @@ public class Main {
     }
 
     private static void getRecommendations(Scanner sc, User user, MovieDatabase movieDb,
-            RecommendationEngine recEngine) {
-        System.out.print("How many recommendations would you like (N): ");
-        int n = readInt(sc);
+                                        RecommendationEngine recEngine) {
+        System.out.println("=== Recommendations ===");
+        System.out.println("1. Top-N by rating");
+        System.out.println("2. Top-N by favourite genre");
+        System.out.print("Choose strategy: ");
+        String strategyStr = sc.nextLine().trim();
 
-        List<Movie> recs = recEngine.getTopNRecommendations(user, movieDb, n);
-
-        System.out.println("\n=== Recommended Movies ===");
-        if (recs == null || recs.isEmpty()) {
-            System.out.println("No recommendations available. Try watching more movies first!");
+        System.out.print("Enter N (number of movies): ");
+        String nStr = sc.nextLine().trim();
+        int n;
+        try {
+            n = Integer.parseInt(nStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number.");
             return;
         }
-        for (Movie m : recs) {
-            System.out.println(m);
+
+        List<Movie> recs;
+
+        if (strategyStr.equals("2")) {
+            recs = recEngine.getTopNByFavouriteGenre(user, movieDb, n);
+        } else {
+            // default case or "1"
+            recs = recEngine.getTopNRecommendations(user, movieDb, n);
+        }
+
+        if (recs.isEmpty()) {
+            System.out.println("No recommendations available. Try watching more movies first.");
+        } else {
+            System.out.println("Recommended movies:");
+            for (Movie m : recs) {
+                System.out.println("  " + m.getId() + " - " + m.getTitle()
+                        + " (" + m.getYear() + ") - " + m.getGenre()
+                        + " - " + m.getRating());
+            }
         }
     }
 
@@ -256,5 +282,34 @@ public class Main {
         user.setPassword(newPass);
         userDb.saveUsers();
         System.out.println("Password changed successfully.");
+    }
+
+    private static User handleRegister(Scanner sc, UserDatabase userDb) {
+        System.out.println("=== Create New Account ===");
+
+        System.out.print("Choose a username: ");
+        String username = sc.nextLine().trim();
+
+        if (username.length() == 0) {
+            System.out.println("Username cannot be empty.");
+            return null;
+        }
+
+        if (userDb.usernameExists(username)) {
+            System.out.println("Username already exists. Please pick another one.");
+            return null;
+        }
+
+        System.out.print("Choose a password: ");
+        String password = sc.nextLine().trim();
+
+        if (password.length() == 0) {
+            System.out.println("Password cannot be empty.");
+            return null;
+        }
+
+        User newUser = userDb.createUser(username, password);
+        System.out.println("Account created successfully! You can now log in.");
+        return newUser;
     }
 }
