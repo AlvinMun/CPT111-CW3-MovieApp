@@ -13,37 +13,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserDatabase {
+    // map username to User object
     private HashMap<String, User> users = new HashMap<>();
     private String filePath;
 
+    // constructor (loads users from csv file)
     public UserDatabase(String filePath) {
         this.filePath = filePath;
         loadUsersFromFile(filePath);
     }
 
+    // load users from csv file
     private void loadUsersFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line = br.readLine();
+
+            // process each line
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
 
+                // split line by commas
                 String[] parts = line.split(",", -1);
 
                 if (parts.length < 4) continue;
 
+                // extract user data
                 String username = parts[0].trim();
                 String password = parts[1].trim();
                 String watchlistStr = parts[2].trim();
                 String historyStr = parts[3].trim();
 
+                // default user type is BASIC
                 String type = "BASIC";
                 if (parts.length >= 5) {
                     type = parts[4].trim().toUpperCase();
                 }
 
+                // convert strings to lists
                 ArrayList<String> watchlist = parseList(watchlistStr);
                 ArrayList<String> history = parseHistory(historyStr);
 
+                // create user object depending on type
                 User user;
 
                 if ("PREMIUM".equals(type)) {
@@ -59,6 +69,7 @@ public class UserDatabase {
         }
     }
 
+    // convert semicolon-separated string to list
     private ArrayList<String> parseList(String s) {
         ArrayList<String> list = new ArrayList<>();
 
@@ -74,6 +85,7 @@ public class UserDatabase {
         return list;
     }
 
+    // convert history format string to list
     private ArrayList<String> parseHistory(String s) {
         ArrayList<String> list = new ArrayList<>();
 
@@ -84,6 +96,7 @@ public class UserDatabase {
             entry = entry.trim();
             if (entry.isEmpty()) continue;
 
+            // split by @ to get movie ID
             String[] parts = entry.split("@");
             String movieId = parts[0].trim();
 
@@ -94,6 +107,7 @@ public class UserDatabase {
         return list;
     }
 
+    // authenticate user by checking username and password
     public User login(String username, String password) {
         User u = users.get(username);
 
@@ -103,6 +117,7 @@ public class UserDatabase {
         return null;
     }
 
+    // saves all users to csv file
     public void saveUsers() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
         bw.write("username,password,watchlist,history,userType");
@@ -125,6 +140,7 @@ public class UserDatabase {
         }
     }
     
+    // create a new Basic user and add to database
     public User createUser(String username, String password) {
         if (users.containsKey(username)) return null;
 
@@ -136,11 +152,12 @@ public class UserDatabase {
         return u;
     }
 
-
+    // return all users
     public HashMap<String, User> getUsers() {
         return users;
     }
 
+    // check if username exists
     public boolean usernameExists(String username) {
         return users.containsKey(username);
     }

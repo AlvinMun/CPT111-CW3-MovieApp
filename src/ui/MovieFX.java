@@ -49,6 +49,12 @@ public class MovieFX extends Application {
         primaryStage.show();
     }
 
+    //LOGIN SCREEN
+
+    /** 
+     * Builds the login scene
+     * allows username and password login
+    */
     private void buildLoginScene() {
         Label title = new Label("Movie Tracker");
         TextField usernameField = new TextField();
@@ -67,6 +73,7 @@ public class MovieFX extends Application {
                 String p = passwordField.getText().trim();
                 User user = userDb.login(u, p);
                 if (user != null) {
+                    // Successful login
                     currentUser = user;
                     welcomeLabel.setText("Welcome, " + currentUser.getUsername());
                     messageLabel.setText("");
@@ -76,11 +83,13 @@ public class MovieFX extends Application {
                     statusLabel.setText("");
                     primaryStage.setScene(mainScene);
                 } else {
+                    // invalid credentials
                     messageLabel.setText("Invalid username or password.");
                 }
             }
         });
 
+        // registration button action
         registerButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
@@ -95,6 +104,7 @@ public class MovieFX extends Application {
         loginScene = new Scene(root, 400, 300);
     }
 
+    // builds the registration screen
     private void buildRegisterScene() {
         Label title = new Label("Create New Account");
 
@@ -139,6 +149,7 @@ public class MovieFX extends Application {
                     return;
                 }
 
+                //create new user
                 User newUser = userDb.createUser(username, password);
                 if (newUser != null) {
                     messageLabel.setText("Account created! You can now log in.");
@@ -151,6 +162,7 @@ public class MovieFX extends Application {
             }
         });
 
+        // return to login screen
         backButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
@@ -169,10 +181,15 @@ public class MovieFX extends Application {
         registerScene = new Scene(root, 450, 320);
     }
 
+    /**
+     * builds main application screen
+     * contains movie browsing, watchlist management, history, recommendations and account settings.
+     */
     private void buildMainScene() {
         welcomeLabel = new Label("Welcome");
         statusLabel = new Label();
 
+        // Buttons
         Button browseBtn = new Button("Browse Movies");
         Button watchlistBtn = new Button("View Watchlist");
         Button historyBtn = new Button("View History");
@@ -182,6 +199,7 @@ public class MovieFX extends Application {
         Button basicBtn = new Button("Basic");
         Button premiumBtn = new Button("Premium");
 
+        //styling for tier buttons
         basicBtn.getStyleClass().add("tier-button");
         premiumBtn.getStyleClass().add("tier-button");
 
@@ -271,6 +289,7 @@ public class MovieFX extends Application {
             }
         });
 
+        // Layout (top rows)
         HBox topRow = new HBox(10, browseBtn, watchlistBtn, historyBtn, recBtn, changePassBtn, logoutBtn);
         HBox secondRow = new HBox(10, basicBtn, premiumBtn);
         
@@ -371,11 +390,13 @@ public class MovieFX extends Application {
         root.setPadding(new Insets(20));
         mainScene = new Scene(root, 900, 600);
 
+        // Load CSS
         String css = getClass().getResource("style.css").toExternalForm();
         mainScene.getStylesheets().add(css);
 
     }
 
+    // DISPLAY FUNCTIONS
     private void showAllMovies() {
         contentList.getItems().clear();
         for (Movie m : movieDb.getAllMovies()) {
@@ -414,6 +435,12 @@ public class MovieFX extends Application {
         statusLabel.setText("Your viewing History");
     }
 
+    // RECOMMENDATIONS
+
+    /**
+     * Prompts user for recommendation strategy and number of recommendations,
+     * rating based or favourite genre based.
+     */
     private void showRecommendations() {
         if (currentUser == null) {
             statusLabel.setText("Please log in first.");
@@ -446,6 +473,7 @@ public class MovieFX extends Application {
             return;
         }
 
+        // number of recommendations (N)
         TextInputDialog nDialog = new TextInputDialog("5");
         nDialog.setHeaderText("How many recommendations?");
         nDialog.setTitle("Recommendations");
@@ -470,6 +498,7 @@ public class MovieFX extends Application {
             return;
         }
 
+        // shows the tier limit if exceeded
         int max = currentUser.getMaxRecommendations();
         if (n > max) {
             n = max;
@@ -477,6 +506,7 @@ public class MovieFX extends Application {
                     + " user, you can request at most " + max + " recommendations. Showing " + max + ".");
         }
 
+        // compute recommendations
         List<Movie> recs;
         if (strategy == 2) {
             recs = recEngine.getTopNByFavouriteGenre(currentUser, movieDb, n);
@@ -502,12 +532,15 @@ public class MovieFX extends Application {
         }
     }
 
+
+    // CHANGE PASSWORD
     private void changePasswordDialog() {
         if (currentUser == null) {
             statusLabel.setText("Please log in first.");
             return;
         }
 
+        // current password validation
         TextInputDialog currentDialog = new TextInputDialog();
         currentDialog.setTitle("Change Password");
         currentDialog.setHeaderText("Change Password");
@@ -524,6 +557,7 @@ public class MovieFX extends Application {
             return;
         }
 
+        // new password input
         TextInputDialog newDialog = new TextInputDialog();
         newDialog.setTitle("Change Password");
         newDialog.setHeaderText("Change Password");
@@ -540,6 +574,7 @@ public class MovieFX extends Application {
             return;
         }
 
+        // confirm new password
         TextInputDialog confirmDialog = new TextInputDialog();
         confirmDialog.setTitle("Change Password");
         confirmDialog.setHeaderText("Change Password");
@@ -561,7 +596,7 @@ public class MovieFX extends Application {
         statusLabel.setText("Password changed successfully.");
     }
 
-
+    // format movie into readable text
     private String formatMovie(Movie m) {
         return String.format("[%s] %s (%d) - %s - %.1f",
                 m.getId(), m.getTitle(), m.getYear(), m.getGenre(), m.getRating());

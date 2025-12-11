@@ -1,3 +1,5 @@
+/* Button styling for tier selection */
+
 .tier-button {
     -fx-background-color: #dddddd;
     -fx-border-color: #888888;
@@ -7,6 +9,7 @@
     -fx-padding: 6 14;
 }
 
+/* styling applied when a tier button is selected */
 .selected-tier {
     -fx-background-color: #2196F3;
     -fx-text-fill: white;

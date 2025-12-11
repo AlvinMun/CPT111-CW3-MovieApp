@@ -13,6 +13,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        // load movies and users from CSV files
         MovieDatabase movieDb = new MovieDatabase("data/movies.csv");
         UserDatabase userDb = new UserDatabase("data/users.csv");
         RecommendationEngine recEngine = new RecommendationEngine();
@@ -20,7 +21,10 @@ public class Main {
         User currentUser = null;
         boolean running = true;
 
+        // main application loop
         while (running) {
+
+            // if no user is logged in, show login menu
             if (currentUser == null) {
                 System.out.println("\n=== Movie Recommendation & Tracker ===");
                 System.out.println("1. Login");
@@ -46,6 +50,7 @@ public class Main {
                 }
 
             } else {
+                // if a user is logged in, show main menu
                 System.out.println("\n=== Main Menu (Logged in as " + currentUser.getUsername() + ") ===");
                 System.out.println("1. Browse movies");
                 System.out.println("2. Add movie to watchlist");
@@ -102,6 +107,10 @@ public class Main {
         sc.close();
     }
 
+    /**
+     *  reads an integer from the user
+     * keeps asking until a valid integer is entered
+     */
     private static int readInt(Scanner sc) {
         while (true) {
             String line = sc.nextLine();
@@ -113,6 +122,7 @@ public class Main {
         }
     }
 
+    // handles user login
     private static User handleLogin(Scanner sc, UserDatabase userDb) {
         System.out.print("Username: ");
         String username = sc.nextLine().trim();
@@ -131,6 +141,8 @@ public class Main {
     }
 
     // Logged in Actions
+
+    // prints all movies in the database
     private static void browseMovies(MovieDatabase movieDb) {
         System.out.println("\n===All Movies ===");
         for (Movie m : movieDb.getAllMovies()) {
@@ -138,6 +150,7 @@ public class Main {
         }
     }
 
+    // prompts user to add a movie to their watchlist
     private static void addMovieToWatchlist(Scanner sc, User user, MovieDatabase movieDb, UserDatabase userDb) {
         System.out.print("Enter movie ID to add to watchlist (e.g. M001): ");
         String id = sc.nextLine().trim();
@@ -153,6 +166,7 @@ public class Main {
         System.out.println("Added to watchlist: " + movie);
     }
 
+    // prompts user to remove a movie from their watchlist
     private static void removeMovieFromWatchlist(Scanner sc, User user, MovieDatabase movieDb, UserDatabase userDb) {
         System.out.print("Enter movie ID to remove from watchlist: ");
         String id = sc.nextLine().trim();
@@ -167,6 +181,7 @@ public class Main {
         System.out.println("Removed movie " + id + " from watchlist.");
     }
 
+    // displays all movies in the user's watchlist
     private static void viewWatchlist(User user, MovieDatabase movieDb) {
         System.out.println("\n=== Your Watchlist ===");
         if (user.getWatchList().isEmpty()) {
@@ -184,6 +199,7 @@ public class Main {
         }
     }
 
+    // marks a movie as watched, adds it to history and removes from watchlist
     private static void markMovieAsWatched(Scanner sc, User user, MovieDatabase movieDb, UserDatabase userDb) {
         System.out.print("Enter movie ID to mark as watched: ");
         String id = sc.nextLine().trim();
@@ -201,6 +217,7 @@ public class Main {
         System.out.println("Marked as watched: " + movie);
     }
 
+    // displays all movies in the user's viewing history
     private static void viewHistory(User user, MovieDatabase movieDb) {
         System.out.println("\n=== Your Viewing History ===");
         if (user.getHistory().isEmpty()) {
@@ -217,6 +234,7 @@ public class Main {
         }
     }
 
+    // gets movie recommendations for the user based on selected strategy
     private static void getRecommendations(Scanner sc, User user, MovieDatabase movieDb,
                                         RecommendationEngine recEngine) {
         System.out.println("=== Recommendations ===");
@@ -235,6 +253,7 @@ public class Main {
             return;
         }
 
+        // shows maximum recommendations allowed based on user type
         int max = user.getMaxRecommendations();
         if (n > max) {
             System.out.println("As a " + user.getUserType()
@@ -262,6 +281,7 @@ public class Main {
         }
     }
 
+    // changes the user's password
     private static void changePassword(Scanner sc, User user, UserDatabase userDb) {
         System.out.print("Enter current password: ");
         String current = sc.nextLine().trim();
@@ -290,6 +310,7 @@ public class Main {
         System.out.println("Password changed successfully.");
     }
 
+    // handles new user registration, inputs username and password
     private static User handleRegister(Scanner sc, UserDatabase userDb) {
         System.out.println("=== Create New Account ===");
 
