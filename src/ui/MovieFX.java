@@ -36,6 +36,7 @@ public class MovieFX extends Application {
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
+        // load csv data
         movieDb = new MovieDatabase("data/movies.csv");
         userDb = new UserDatabase("data/users.csv");
         recEngine = new RecommendationEngine();
